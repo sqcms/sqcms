@@ -9,8 +9,6 @@ date_default_timezone_set('Asia/Tokyo');
 $db = new PDO('sqlite:' . __DIR__ . '/.ht.db.sqlite3');
 $base_url = substr($_SERVER['SCRIPT_NAME'], 0, -10); // 自動判別させる例
 $path = substr(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), strlen($base_url)); // 自動判別させる例
-$header = '';
-$title = 'sqcms';
 $reponse = '';
 
 $s = $db->prepare("select * from posts where name = ?");
@@ -33,7 +31,6 @@ if ($post) {
 	} else {
 		$contents = ($post['data'] ? $post['data'] : $post['blobdata']);
 	}
-	$header = $post['header'];
 }
 if ($layout) {
 	if ($layout['type'] == 'php') {
@@ -46,10 +43,11 @@ if ($layout) {
 } else {
 	$reponse = $contents;
 }
-
-if ($header) {
-	foreach (explode("\n", $header) as $v) {
-		header(trim($v));
+if (!empty($post['header'])) {
+	foreach (explode("\n", $post['header']) as $v) {
+		if ($v) {
+			header(trim($v));
+		}
 	}
 }
 echo $reponse;
